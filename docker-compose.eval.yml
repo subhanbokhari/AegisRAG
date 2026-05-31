@@ -1,0 +1,38 @@
+version: '3.8'
+
+networks:
+  aegis_sandbox:
+    driver: bridge
+
+services:
+  aegis_db:
+    image: ankane/pgvector:latest
+    networks:
+      - aegis_sandbox
+    environment:
+      POSTGRES_USER: aegis_admin
+      POSTGRES_PASSWORD: SecUrE_Aegis_PaSsWoRd_2026
+      POSTGRES_DB: aegis_rag
+
+  aegis_app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    networks:
+      - aegis_sandbox
+    depends_on:
+      - aegis_db
+    ports:
+      - "8000:8000"
+
+  attack_suite:
+    image: python:3.11-slim
+    networks:
+      - aegis_sandbox
+    depends_on:
+      - aegis_app
+    volumes:
+      - ./eval_tests:/tests
+      - ./requirements.txt:/requirements.txt
+    entrypoint: >
+      bash -c "pip install -r /requirements.txt && pytest /tests/benchmarks.py -v"

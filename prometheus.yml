@@ -1,0 +1,14 @@
+# prometheus.yml - Prometheus configuration for metrics collection
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'aegis-rag-monitor'
+
+scrape_configs:
+  - job_name: 'aegis_app'
+    static_configs:
+      - targets: ['aegis_app:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
